@@ -235,9 +235,9 @@ async function inspectHostContracts() {
     presetStates: { classic: classicPreset, adaptive: adaptivePreset },
     checks: {
       wrapperVersion: integration.wrapperVersion === expectedWrapperVersion,
-      backendReady: integration.backend?.kind === 'ready' && integration.backend.details?.serverVersion === '3.1.5',
+      backendReady: integration.backend?.kind === 'ready' && integration.backend.details?.serverVersion === '4.4.2',
       editorConnected: integration.editor?.kind === 'connected'
-        && integration.editor.sessions.some(session => session.pluginVersion === '3.1.5'),
+        && integration.editor.sessions.some(session => session.pluginVersion === '4.4.2'),
       updateProbePresent: ['current', 'update-available', 'unverified-update', 'unavailable'].includes(integration.update?.kind),
       classicPresetRoute: ['current', 'not-installed', 'sync-available', 'base-update-available', 'user-modified', 'broken', 'unavailable'].includes(classicPreset.kind),
       adaptivePresetRoute: ['current', 'not-installed', 'sync-available', 'base-update-available', 'user-modified', 'broken', 'unavailable'].includes(adaptivePreset.kind),

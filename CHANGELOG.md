@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 - 2026-11-25
+
+- 适配 DeepSeek Harness 0.2.2-rc.5：peer 范围改为 `>=0.2.2-rc.5 <0.2.3-0`，开发依赖迁到 `0.2.2-rc.5` 与 Cordis `4.1.0`。
+- Godot Creator preset 重新移植到 rc.5 官方 Web PTC 组合：新增 `tool-schedule`、`tool-office`、`tool-executor-ptc` 行，采用新的 `planning` 隔离、`tool-subagent` 模型选择与 `tool-subagent-control` 配置。
+- Godot AI 后端升级到 `4.4.2`：重新固定完整 47 个工具面（新增 `session_activate`、`session_manage`）与新的工具目录哈希。
+- Godot 最低版本提高到 `4.7`：Godot AI 4.4.2 的 v4 editor 协议硬性要求 4.7 及以上的 4.x 编辑器，4.5/4.6 会被拒绝连接；本机 Godot `4.7.2` 已满足该门禁，但编辑器端 E2E 未重跑。这是行为收紧，旧工程需先升级引擎。
+- 同步 Skills 与文档：工具数改为 47、upstream 指向 `v4.4.2`，并移除随 Adaptive 模式一起下线的运行时预算描述。
+
 ## 0.7.0 - 2026-10-07
 
 - 支持 DeepSeek Harness 0.2.0-rc.2 Web，开发依赖与 peer 范围迁到新版公开 API。

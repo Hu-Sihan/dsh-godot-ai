@@ -125,7 +125,7 @@ function GodotWorkspaceDrawer({ snapshot, busy, error, draftOccupied, onClose, o
             <div className="dga-ws-section-title"><span>{t('workspace.versions')}</span></div>
             <dl className="dga-ws-facts">
               <div><dt>Wrapper</dt><dd>{snapshot?.wrapperVersion ?? '—'}</dd></div>
-              <div><dt>Tested backend</dt><dd>{snapshot?.testedVersion ?? '3.1.5'}</dd></div>
+              <div><dt>Tested backend</dt><dd>{snapshot?.testedVersion ?? '4.4.2'}</dd></div>
               <div><dt>Update</dt><dd>{snapshot === undefined ? '—' : updateDetail(snapshot, t)}</dd></div>
             </dl>
           </section>

@@ -11,7 +11,7 @@ kind: "package-bundle"
 
 给 DeepSeek Harness 增加一个专门做 Godot 游戏的 **Godot Creator** 模式。你描述玩法，AI 通过原版 [Godot AI](https://github.com/hi-godot/godot-ai) 操作当前打开的编辑器，搭场景、改脚本、制作 UI，再运行并检查结果。插件同时提供游戏创作台、16 个 Godot Skills、3 个工作流和第三方 Skill 市场。Godot AI Addon 需要你在目标项目中手动安装并启用。
 
-当前版本 `0.7.0`，支持 DSH `0.2.0-rc.2` Web；不支持旧 rc8。所有能力集中在一个 `godot-creator` preset，不再提供 Adaptive 模式。
+当前版本 `0.8.0`，支持 DSH `0.2.2-rc.5` Web；不支持旧 rc8。所有能力集中在一个 `godot-creator` preset，不再提供 Adaptive 模式。
 
 ## 目录
 
@@ -28,7 +28,7 @@ kind: "package-bundle"
 
 ### 1. 准备环境
 
-需要 DSH `0.2.0-rc.2` Web、Node.js `22.19+` 的 22.x 或 `24+`（不使用 Node 23），以及 `uvx`。Godot 最低 `4.5`，推荐 `4.7+`；Godot AI 后端固定在已验证的 `3.1.5`。
+需要 DSH `0.2.2-rc.5` Web、Node.js `22.19+` 的 22.x 或 `24+`（不使用 Node 23），以及 `uvx`。Godot 最低 `4.7`（Godot AI 4.4.2 的 v4 editor 协议要求，4.5/4.6 会被拒绝），推荐 `4.7`，本机 `4.7.2` 已满足该门禁；Godot AI 后端固定在 `4.4.2`。
 
 先确认：
 
@@ -41,13 +41,13 @@ uvx --version
 使用与你的 Web 实例相同的 profile。例如本机 `dsh-web` 使用 `web-rc2`：
 
 ```bash
-dsh plugin --profile web-rc2 add dsh-godot-ai@0.7.0
+dsh plugin --profile web-rc2 add dsh-godot-ai@0.8.0
 ```
 
 如果你的全局 `dsh` 比源码旧，在新版 DSH 源码目录使用对应的 CLI：
 
 ```bash
-node --import tsx/esm apps/cli/src/bin.ts plugin --profile web-rc2 add dsh-godot-ai@0.7.0
+node --import tsx/esm apps/cli/src/bin.ts plugin --profile web-rc2 add dsh-godot-ai@0.8.0
 ```
 
 安装完成后，在当前任务结束时重新启动原来的 Web 命令。Godot Creator 会自动出现在 Agent 预设列表中，**无需再点击“安装游戏创造模式”**，也不会创建一套用户目录 preset 副本。
@@ -57,11 +57,11 @@ node --import tsx/esm apps/cli/src/bin.ts plugin --profile web-rc2 add dsh-godot
 ### 3. 在 Godot 项目中启用 Addon
 
 1. 用 Godot 打开目标项目。
-2. 在 AssetLib 搜索 **Godot AI** 并安装与后端兼容的 `3.1.5` Addon。
+2. 在 AssetLib 搜索 **Godot AI** 并安装与后端兼容的 `4.4.2` Addon。
 3. 打开 **Project → Project Settings → Plugins**，启用 Godot AI。
 4. 保持项目在编辑器中打开。
 
-如果 AssetLib 的最新版本已高于 `3.1.5`，使用对应的 [v3.1.5 源码](https://github.com/hi-godot/godot-ai/tree/v3.1.5)中的 `addons/godot_ai`；不要盲目把未经验证的新 Addon 与旧后端混用。插件不自动写入你的项目。安装帮助和连接诊断在 DSH 设置中的 Godot AI 卡片。
+如果 AssetLib 只提供其他版本，使用对应的 [v4.4.2 源码](https://github.com/hi-godot/godot-ai/tree/v4.4.2)中的 `addons/godot_ai`；不要盲目把未经验证的新 Addon 与旧后端混用。插件不自动写入你的项目。安装帮助和连接诊断在 DSH 设置中的 Godot AI 卡片。
 
 ### 4. 开始创作
 
@@ -87,7 +87,7 @@ Godot 编辑器操作由原版 Godot AI 实现；这个插件负责 DSH 模式�
 
 ## 这个模式的底座是什么
 
-不是复制 Minimal，也不再复制用户目录中的 Standard。当前模式基于 **DSH 0.2.0-rc.2 官方 Web PTC 预设的声明式配置**，加入 Godot 专属规则、MCP 和技能提供方。
+不是复制 Minimal，也不再复制用户目录中的 Standard。当前模式基于 **DSH 0.2.2-rc.5 官方 Web PTC 预设的声明式配置**，加入 Godot 专属规则、MCP 和技能提供方。
 
 它保留文件、Shell、搜索、Skills、计划、目标、压缩和验证工具；通过原生 PTC 把模型直接调用的入口收敛到 `run_code`。这是聚焦工具编排，不是删除工程能力。Standard、Minimal 等 DSH 自带模式不被修改。
 
@@ -116,7 +116,7 @@ Godot 编辑器操作由原版 Godot AI 实现；这个插件负责 DSH 模式�
 
 [cordis.patch.yml](cordis.patch.yml) 声明一个 Host 插件和一个 Godot Creator preset；preset 内的 Agent 插件挂载 Persona、Skills 和 Godot AI MCP。Host 提供只读模式状态、集成诊断及 Skill 市场管理；Client 给设置和会话标题贡献界面。模式归属读取新版会话投影，工具展示使用官方 `dsh-agent-tool-presentation` 的 `ptc` 配置。
 
-配置按 DSH 官方 rc.2 PTC 文件固定，契约测试验证其一致性。上游更新不会静默改写用户会话，后续 DSH 版本需要重新适配与验证。没有修改 DSH 源码，也没有工具名改写补丁或首轮自定义路由状态机。
+配置按 DSH 官方 rc.5 PTC 文件固定，契约测试验证其一致性。上游更新不会静默改写用户会话，后续 DSH 版本需要重新适配与验证。没有修改 DSH 源码，也没有工具名改写补丁或首轮自定义路由状态机。
 
 </details>
 
@@ -126,9 +126,9 @@ Godot 编辑器操作由原版 Godot AI 实现；这个插件负责 DSH 模式�
 
 ## 限制与验证
 
-新版测试覆盖 TypeScript、单元与组件契约、tarball 正式安装、真实 rc.2 Web 挂载、45 个 Godot bindings、16 个 Skills、项目 Skill 覆盖、原生 PTC 只读调用和 Standard 隔离；证据见 [插件能力验证](PLUGIN-CAPABILITY.md)。
+新版测试覆盖 TypeScript、单元与组件契约、tarball 正式安装、真实 rc.5 Web 挂载、47 个 Godot bindings、16 个 Skills、项目 Skill 覆盖、原生 PTC 只读调用和 Standard 隔离；证据见 [插件能力验证](PLUGIN-CAPABILITY.md)。
 
-本次环境没有连接 Godot Addon，没有重新测试三款完整游戏或真实模型生成，因此不宣称新版的游戏创作端到端通过。旧游戏验证属于历史版本证据。Godot AI `4.x` 和 DSH `0.2.1-alpha` 尚未验证；缺少 `uvx`、编辑器连接或兼容后端时请先修复设置页提示。
+本次环境没有连接 Godot Addon，没有重新测试三款完整游戏或真实模型生成，因此不宣称新版的游戏创作端到端通过。旧游戏验证属于历史版本证据。Godot AI 除 `4.4.2` 以外的版本和 DSH `0.2.1-alpha`／`0.2.3-alpha` 尚未验证；缺少 `uvx`、编辑器连接或兼容后端时请先修复设置页提示。
 
 ## 开发
 
@@ -139,7 +139,7 @@ pnpm test
 pnpm build
 ```
 
-发布前先测试打包产物，再发布同一 tarball；发布后比较 npm、GitHub 附件和本地 SHA-256。迁移计划见 [0.7.0 计划](docs/10-plans/godot-creator-rc2/plan.json)，版本变化见 [CHANGELOG](CHANGELOG.md)。License：MIT。
+发布前先测试打包产物，再发布同一 tarball；发布后比较 npm、GitHub 附件和本地 SHA-256。版本变化见 [CHANGELOG](CHANGELOG.md)，0.7.0 的迁移计划见 [历史计划](docs/10-plans/godot-creator-rc2/plan.json)。License：MIT。
 
 ### 开发备注
 

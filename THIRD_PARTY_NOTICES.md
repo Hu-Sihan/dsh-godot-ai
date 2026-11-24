@@ -2,9 +2,9 @@
 
 ## DeepSeek Harness Web PTC composition
 
-The Godot Creator declaration in `cordis.patch.yml` derives from the public `@deepseek-ai/dsh-web-app` 0.2.0-rc.2 PTC preset. The Godot declaration identity and description are changed, the disabled plugin-manager row is omitted, and the scoped Godot Agent row is added. The upstream DSH modes are not modified.
+The Godot Creator declaration in `cordis.patch.yml` derives from the public `@deepseek-ai/dsh-web-app` 0.2.2-rc.5 PTC preset. The Godot declaration identity and description are changed, and the scoped Godot Agent row is added; every upstream DSH plugin row is otherwise carried over unmodified.
 
-- Source: https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.0-rc.2/packages/bundle/web-app/presets/ptc.patch.yml
+- Source: https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.2.2-rc.5/packages/bundle/web-app/presets/ptc.patch.yml
 - License: MIT
 - Copyright (c) 2026 DeepSeek
 
@@ -43,9 +43,9 @@ The icon identifies the Godot Engine integration. Its use does not imply endorse
 
 ## hi-godot/godot-ai
 
-The `godot-ai-orchestration` skill and compatibility contract are independently written summaries of the public Godot AI v3.1.5 tool documentation. The plugin launches the original `godot-ai` Python package and communicates with the original Godot addon; it does not vendor their source code.
+The `godot-ai-orchestration` skill and compatibility contract are independently written summaries of the public Godot AI v4.4.2 tool documentation. The plugin launches the original `godot-ai` Python package and communicates with the original Godot addon; it does not vendor their source code.
 
-- Source snapshot: https://github.com/hi-godot/godot-ai/tree/v3.1.5
+- Source snapshot: https://github.com/hi-godot/godot-ai/tree/v4.4.2
 - License: MIT
 
 ## awesome-gamedev-agent-skills

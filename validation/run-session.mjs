@@ -53,15 +53,15 @@ async function integration() {
 function assertPreflight(snapshot) {
   if (snapshot.wrapperVersion !== '0.4.2') throw new Error(`expected wrapper 0.4.2, got ${snapshot.wrapperVersion}`)
   if (snapshot.backend?.kind !== 'ready') throw new Error(`Godot AI backend is ${snapshot.backend?.kind ?? 'missing'}`)
-  if (snapshot.backend.details?.serverVersion !== '3.1.5') {
-    throw new Error(`expected Godot AI 3.1.5, got ${snapshot.backend.details?.serverVersion}`)
+  if (snapshot.backend.details?.serverVersion !== '4.4.2') {
+    throw new Error(`expected Godot AI 4.4.2, got ${snapshot.backend.details?.serverVersion}`)
   }
   if (snapshot.backend.details?.excludeDomains?.length !== 0) throw new Error('Godot AI domains are excluded')
   if (snapshot.editor?.kind !== 'connected') throw new Error(`Godot editor is ${snapshot.editor?.kind ?? 'missing'}`)
   const target = resolve(campaign.projectPath)
   const matching = snapshot.editor.sessions.filter(session => resolve(session.projectPath) === target)
   if (matching.length !== 1) throw new Error(`expected one connected ${target} editor session, got ${matching.length}`)
-  if (matching[0].pluginVersion !== '3.1.5') throw new Error(`expected addon 3.1.5, got ${matching[0].pluginVersion}`)
+  if (matching[0].pluginVersion !== '4.4.2') throw new Error(`expected addon 4.4.2, got ${matching[0].pluginVersion}`)
 }
 
 function assertSkills(value) {

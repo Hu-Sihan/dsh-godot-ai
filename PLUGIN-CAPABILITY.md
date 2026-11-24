@@ -1,22 +1,25 @@
 # 插件能力验证
 
-当前验证对象：`dsh-godot-ai@0.7.0`、DSH `0.2.0-rc.2` 官方源码 Web、Godot AI `3.1.5`。旧版本三款游戏和 Adaptive 矩阵不作为本版本验收证据。
+当前适配对象：`dsh-godot-ai@0.8.0`、DSH `0.2.2-rc.5` 官方 Web、Godot AI `4.4.2`、Godot `4.7`（本机引擎 `4.7.2`）。三款旧版游戏、Adaptive 矩阵和 `validation/rc2-release/` 中的报告属于 0.7.0 历史证据，不作为本版本的验收证据。
 
-## 验证范围
+## 本次已执行
 
-- 单元与组件契约：兼容清单、一个声明式 preset、官方 PTC composition 一致性、技能优先级、市场签名/扫描/确认/更新/回滚、页面草稿与焦点行为。
-- 类型和构建：直接使用 npm 的 DSH rc.2 开发依赖，不使用旧 rc8 类型或跳过插件自身类型错误。
-- 正式安装：通过当前 DSH CLI 的 `plugin --profile ... add <tarball>` 安装打包产物，再检查合成配置和真实 Host。
-- 运行行为：公开 registry 识别唯一 Godot 模式；会话绑定到独立测试工作区；真实原生 PTC 调用 `session_manage(op=list)`。
-- 数据与隔离：完整 45 个 Godot SDK bindings、16 Skills、项目同名 Skill 覆盖；Standard 不出现 Godot 工具和 Persona。
-- 浏览器：正常点击设置与市场标签页，检查加载、Addon 未连接提示、模式列表和创作台；不强制绕过 onboarding。
-- 发布：npm 线上包与 GitHub 附件必须等于已测 tarball 的 SHA-256。
+- 类型检查：`node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit`，无诊断。
+- 构建：`tsc -p tsconfig.json` 与 `tsdown`，产出 `lib/index.js`、`lib/agent.js`、`lib/client.js`。
+- 单元与组件契约：`vitest run`，27 个文件 94 个用例，90 通过、4 个因运行环境禁止创建符号链接（`EPERM: operation not permitted, symlink`）无法执行；这 4 个用例本身在验证 symlink 拒绝逻辑，不是适配缺陷。
+- 兼容清单契约：`compatibility.json` 与 `cordis.patch.yml` 对照 rc.5 官方 `presets/ptc.patch.yml` 逐行比对，除 Godot 声明与新增 `godot-ai-agent` 行外无差异。
+- Godot AI 4.4.2 工具面：在独立 venv 中安装 `godot-ai==4.4.2`，直接调用 `create_server(ws_port=9500, capabilities=generate_capabilities(), http_port=8000)` 与 `tool_catalog_hash()`，得到 47 个工具、目录哈希 `0733ca47a6832d610a77258e953e8c48d5f00588dd40a186ba312b5d129bb114`、`attach_protocol_version` 1，与 `compatibility.json` 完全一致。
 
-测试桥仅位于 `validation/`，不进入 npm 包；它只运行固定的只读 Godot 调用，不接受任意代码或项目修改。测试使用独立 DSH Home/profile/端口，日常 Web profile 不参与。
+## 本次未执行
 
-## 证据与重跑
+- 正式安装：未通过 DSH CLI 的 `plugin --profile ... add <tarball>` 安装打包产物。
+- 真实 Host 挂载：未启动隔离 rc.5 Web 实例，未运行 `validation/rc2-smoke.mjs verify` 的 `/__dga-smoke` 探针。
+- 编辑器链路：未连接 Godot 编辑器，因此未验证 Addon 会话、工具调用、编辑器写入、运行输入与完整游戏创作 E2E。
+- 真实模型生成与发布比对：未重新测试；npm 线上包与 GitHub 附件的 SHA-256 比对属于发布流程。
 
-[单元报告](validation/rc2-release/unit-report.json)、[运行报告](validation/rc2-release/runtime-report.json)和[发布报告](validation/rc2-release/release-report.json)记录各层的实际结果。迁移门禁由 [plan.json](docs/10-plans/godot-creator-rc2/plan.json)管理。
+上述缺口意味着本版本只声明静态契约与工具面适配，不声明运行时端到端通过。`validation/` 下的测试桥不进入 npm 包，只运行固定的只读 Godot 调用，不接受任意代码或项目修改；测试应使用独立 DSH Home/profile/端口，日常 Web profile 不参与。
+
+## 重跑命令
 
 ```bash
 pnpm check
@@ -34,6 +37,8 @@ node validation/rc2-smoke.mjs verify
 
 启动日志包含本次 Host 的认证链接，必须留在本地权限受控目录；报告不记录 token 或模型凭据。不要把日常 profile 用作测试目录。
 
-## 明确未覆盖
+## 历史证据
 
-本次没有连接 Godot Addon，因此不声称编辑器写入、运行输入或完整游戏创作 E2E 通过；真实模型生成亦未重新测试。Godot AI 新版和 DSH alpha 支持需另行验证。静态单元测试和 Web 能力验证不等同于完整游戏验收。
+[单元报告](validation/rc2-release/unit-report.json)、[运行报告](validation/rc2-release/runtime-report.json)和[发布报告](validation/rc2-release/release-report.json)记录 0.7.0 各层的实际结果；0.8.0 未重新生成这些报告。0.7.0 的迁移门禁由 [plan.json](docs/10-plans/godot-creator-rc2/plan.json) 管理。
+
+静态单元测试、类型检查和工具面比对不等同于完整游戏验收。

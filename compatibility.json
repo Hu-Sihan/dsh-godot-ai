@@ -1,18 +1,18 @@
 {
   "schemaVersion": 2,
-  "wrapperVersion": "0.7.0",
+  "wrapperVersion": "0.8.0",
   "dsh": {
-    "tested": "0.2.0-rc.2",
-    "range": ">=0.2.0-rc.2 <0.2.1-0"
+    "tested": "0.2.2-rc.5",
+    "range": ">=0.2.2-rc.5 <0.2.3-0"
   },
   "godotAi": {
-    "defaultVersion": "3.1.5",
+    "defaultVersion": "4.4.2",
     "testedVersions": [
-      "3.1.5"
+      "4.4.2"
     ],
     "attachProtocolVersion": 1,
-    "expectedToolCount": 45,
-    "expectedToolCatalogHash": "af75d04a00d4be87421db50c6f51ba709375286178ea02482ef2776acace1470",
+    "expectedToolCount": 47,
+    "expectedToolCatalogHash": "0733ca47a6832d610a77258e953e8c48d5f00588dd40a186ba312b5d129bb114",
     "httpPort": 8000,
     "wsPort": 9500,
     "excludeDomains": [],
@@ -23,7 +23,7 @@
       "maxAttempts": 10
     },
     "pypiJsonUrl": "https://pypi.org/pypi/godot-ai/json",
-    "godotMinimum": "4.5",
+    "godotMinimum": "4.7",
     "godotRecommended": "4.7"
   }
 }

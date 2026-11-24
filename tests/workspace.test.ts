@@ -13,17 +13,17 @@ function translator(dict: Record<GodotAiKey, string>): TranslateNS<'dsh-godot-ai
 const t = translator(zh)
 
 const base: GodotIntegrationSnapshot = {
-  checkedAt: '2026-08-23T00:00:00.000Z', wrapperVersion: '0.3.0', testedVersion: '3.1.5',
-  godotMinimum: '4.5', godotRecommended: '4.7',
+  checkedAt: '2026-08-23T00:00:00.000Z', wrapperVersion: '0.3.0', testedVersion: '4.4.2',
+  godotMinimum: '4.7', godotRecommended: '4.7',
   uvx: { kind: 'available', version: 'uvx 0.8.13' },
   backend: {
     kind: 'ready', details: {
-      serverVersion: '3.1.5', attachProtocolVersion: 1, wsPort: 9500, excludeDomains: [],
+      serverVersion: '4.4.2', attachProtocolVersion: 1, wsPort: 9500, excludeDomains: [],
       ownerType: 'attach', toolCatalogHash: 'a'.repeat(64), activeLeaseCount: 1,
     },
   },
   editor: { kind: 'not-connected' },
-  update: { kind: 'current', latestVersion: '3.1.5' },
+  update: { kind: 'current', latestVersion: '4.4.2' },
 }
 
 describe('Godot workspace presentation', () => {
@@ -34,7 +34,7 @@ describe('Godot workspace presentation', () => {
       ...base,
       editor: { kind: 'connected', sessions: [{
         sessionId: 'game@1', name: '', godotVersion: '4.7', projectPath: '/projects/space-game',
-        pluginVersion: '3.1.5', currentScene: 'res://levels/main.tscn', playState: 'playing',
+        pluginVersion: '4.4.2', currentScene: 'res://levels/main.tscn', playState: 'playing',
         readiness: 'ready', isActive: true,
       }] },
     }

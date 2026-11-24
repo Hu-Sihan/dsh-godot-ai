@@ -65,14 +65,14 @@ if (process.argv[2] === 'release-verify') {
   assert.equal(probe.agentPreset, 'godot-creator')
   assert.equal(probe.cwd, workspace)
   assert.deepEqual(probe.directTools, ['run_code'])
-  assert.equal(probe.godotNames.length, 45)
+  assert.equal(probe.godotNames.length, 47)
   assert.equal(probe.godotSkills.length, 16)
   assert.equal(probe.creatorPersona, true)
   assert.equal(probe.projectSkillOverride, true)
   assert.equal(probe.standardUnaffected, true)
   assert.equal(probe.ptc.success, true, JSON.stringify(probe.ptc))
   assert.equal(probe.ptc.hasSessionList, true)
-  const report = { version: manifest.version, dsh: '0.2.0-rc.2', host: base, workspace,
+  const report = { version: manifest.version, dsh: '0.2.2-rc.5', host: base, workspace,
     probe, marketAvailable: Boolean(market.market), integrationAvailable: true,
     gameCreationE2E: 'not-tested', success: true }
   await writeFile(new URL('runtime-report.json', reports), JSON.stringify(report, null, 2) + '\n')

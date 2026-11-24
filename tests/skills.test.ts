@@ -18,7 +18,7 @@ describe('bundled Godot skills', () => {
       expect(skill.content).not.toContain('godot-mcp')
     }
     const orchestration = skills.find(skill => skill.name === 'godot-ai-orchestration')
-    expect(orchestration?.content).toContain('45 个工具')
+    expect(orchestration?.content).toContain('47 个工具')
     expect(orchestration?.content).toContain('script_create')
     expect(orchestration?.content).toContain('game_status.status')
     expect(orchestration?.content).toContain('input_sequence')

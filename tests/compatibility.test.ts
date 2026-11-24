@@ -19,12 +19,14 @@ describe('compatibility manifest', () => {
       serverName: 'godot-ai',
       command: 'uvx',
       args: [
-        '--link-mode', 'copy', '--from', 'godot-ai==3.1.5',
+        '--link-mode', 'copy', '--from', 'godot-ai==4.4.2',
         'godot-ai', 'attach', '--port', '8000', '--ws-port', '9500',
       ],
       env: {},
       cwd: '',
       toolCallTimeoutMs: 360_000,
+      closeTimeoutMs: 5_000,
+      expandTemplates: false,
       failOnStartupError: false,
       reconnect: { enabled: true, initialDelayMs: 500, maxDelayMs: 30_000, maxAttempts: 10 },
     })

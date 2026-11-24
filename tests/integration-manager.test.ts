@@ -11,7 +11,7 @@ import {
 } from '../src/host/integration-manager.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const hash = 'af75d04a00d4be87421db50c6f51ba709375286178ea02482ef2776acace1470'
+const hash = '0733ca47a6832d610a77258e953e8c48d5f00588dd40a186ba312b5d129bb114'
 
 async function manifest(): Promise<CompatibilityManifest> {
   return parseCompatibilityManifest(JSON.parse(await readFile(join(root, 'compatibility.json'), 'utf8')))
@@ -20,7 +20,7 @@ async function manifest(): Promise<CompatibilityManifest> {
 function status(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     name: 'godot-ai',
-    server_version: '3.1.5',
+    server_version: '4.4.2',
     attach_protocol_version: 1,
     ws_port: 9500,
     exclude_domains: [],
@@ -55,7 +55,7 @@ describe('backend status probe', () => {
     await expect(probeBackend(config, vi.fn(async () => json({ name: 'other' }))))
       .resolves.toMatchObject({ kind: 'foreign-listener' })
     await expect(probeBackend(config, vi.fn(async () => json(status()))))
-      .resolves.toMatchObject({ kind: 'ready', details: { serverVersion: '3.1.5', activeLeaseCount: 1 } })
+      .resolves.toMatchObject({ kind: 'ready', details: { serverVersion: '4.4.2', activeLeaseCount: 1 } })
     await expect(probeBackend(config, vi.fn(async () => json(status({ server_version: '3.2.0' })))))
       .resolves.toMatchObject({ kind: 'incompatible', reason: expect.stringContaining('3.2.0') })
     await expect(probeBackend(config, vi.fn(async () => json(status({ exclude_domains: ['debug'] })))))
@@ -68,7 +68,7 @@ describe('backend status probe', () => {
 describe('editor session parsing', () => {
   const session = {
     session_id: 'game@a1b2', name: 'game', godot_version: '4.7', project_path: '/game',
-    plugin_version: '3.1.5', current_scene: 'res://main.tscn', play_state: 'stopped',
+    plugin_version: '4.4.2', current_scene: 'res://main.tscn', play_state: 'stopped',
     readiness: 'ready', is_active: true,
   }
 
@@ -94,7 +94,7 @@ describe('integration snapshot', () => {
     })
     const readSessions = vi.fn(async () => [{
       sessionId: 'game@a1b2', name: 'game', godotVersion: '4.7', projectPath: '/game',
-      pluginVersion: '3.1.5', currentScene: '', playState: 'stopped', readiness: 'ready', isActive: true,
+      pluginVersion: '4.4.2', currentScene: '', playState: 'stopped', readiness: 'ready', isActive: true,
     }])
     const manager = new GodotIntegrationManager(config, '0.3.0', {
       fetch: fetchMock,
@@ -124,7 +124,7 @@ describe('integration snapshot', () => {
     const fetchMock = vi.fn(async (input: string | URL | Request) => {
       if (String(input).includes('127.0.0.1')) { backendCalls += 1; return json(status()) }
       pypiCalls += 1
-      return json({ info: { version: '3.1.5' } })
+      return json({ info: { version: '4.4.2' } })
     })
     const manager = new GodotIntegrationManager(config, '0.3.0', {
       fetch: fetchMock,
@@ -146,7 +146,7 @@ describe('integration snapshot', () => {
     const readSessions = vi.fn()
     const manager = new GodotIntegrationManager(config, '0.3.0', {
       fetch: vi.fn(async (input: string | URL | Request) => String(input).includes('pypi')
-        ? json({ info: { version: '3.1.5' } })
+        ? json({ info: { version: '4.4.2' } })
         : Promise.reject(new TypeError('fetch failed'))),
       probeUvx: async () => ({ kind: 'missing' }),
       readEditorSessions: readSessions,

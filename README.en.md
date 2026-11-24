@@ -11,7 +11,7 @@ kind: "package-bundle"
 
 Add **Godot Creator**, a dedicated game-making mode, to DeepSeek Harness. Describe your gameplay and the AI uses the original [Godot AI](https://github.com/hi-godot/godot-ai) to build scenes, edit scripts, make UI, run the game, and check results in the open editor. The plugin also provides a workspace panel, 16 Godot Skills, three workflows, and a third-party Skill market. You must manually install and enable the Godot AI Addon in each target project.
 
-Version `0.7.0` supports DSH `0.2.0-rc.2` Web, not legacy rc8. All capabilities belong to one `godot-creator` preset; there is no Adaptive mode.
+Version `0.8.0` supports DSH `0.2.2-rc.5` Web, not legacy rc8. All capabilities belong to one `godot-creator` preset; there is no Adaptive mode.
 
 ## Table of Contents
 
@@ -28,7 +28,7 @@ Version `0.7.0` supports DSH `0.2.0-rc.2` Web, not legacy rc8. All capabilities 
 
 ### 1. Prerequisites
 
-Use DSH `0.2.0-rc.2` Web, Node.js `22.19+` on the 22.x line or `24+` (not Node 23), and `uvx`. Godot minimum is `4.5`, recommended `4.7+`; the backend stays pinned to verified Godot AI `3.1.5`.
+Use DSH `0.2.2-rc.5` Web, Node.js `22.19+` on the 22.x line or `24+` (not Node 23), and `uvx`. Godot minimum is `4.7` (required by the Godot AI 4.4.2 v4 editor protocol; 4.5/4.6 editors are rejected) and recommended at `4.7`; the local `4.7.2` engine satisfies that gate. The backend stays pinned to Godot AI `4.4.2`.
 
 First check:
 
@@ -41,13 +41,13 @@ uvx --version
 Use the same profile as your Web instance. The local `dsh-web` launcher uses `web-rc2`:
 
 ```bash
-dsh plugin --profile web-rc2 add dsh-godot-ai@0.7.0
+dsh plugin --profile web-rc2 add dsh-godot-ai@0.8.0
 ```
 
 If your global `dsh` is older than the source checkout, run its matching CLI from the newer DSH directory:
 
 ```bash
-node --import tsx/esm apps/cli/src/bin.ts plugin --profile web-rc2 add dsh-godot-ai@0.7.0
+node --import tsx/esm apps/cli/src/bin.ts plugin --profile web-rc2 add dsh-godot-ai@0.8.0
 ```
 
 Restart your original Web command when ongoing tasks finish. Godot Creator appears automatically in the Agent preset list: **no separate mode-install button** and no copied user-directory preset.
@@ -57,11 +57,11 @@ If selection is hidden, enable “Show code work view” in settings and open Ag
 ### 3. Enable the Addon in Godot
 
 1. Open the target project in Godot.
-2. Search AssetLib for **Godot AI** and install the backend-compatible `3.1.5` Addon.
+2. Search AssetLib for **Godot AI** and install the backend-compatible `4.4.2` Addon.
 3. Open **Project → Project Settings → Plugins** and enable Godot AI.
 4. Keep the project open in the editor.
 
-If AssetLib only offers a newer version, use `addons/godot_ai` from the matching [v3.1.5 source](https://github.com/hi-godot/godot-ai/tree/v3.1.5). Do not mix an unverified new Addon with the old backend. The plugin does not automatically write to your project. Installation guidance and connection diagnostics are in the Godot AI settings card.
+If AssetLib only offers another version, use `addons/godot_ai` from the matching [v4.4.2 source](https://github.com/hi-godot/godot-ai/tree/v4.4.2). Do not mix an unverified new Addon with the old backend. The plugin does not automatically write to your project. Installation guidance and connection diagnostics are in the Godot AI settings card.
 
 ### 4. Start creating
 
@@ -87,7 +87,7 @@ The original Godot AI owns editor operations. This plugin supplies DSH compositi
 
 ## What is the preset based on
 
-It neither copies Minimal nor copies a user-directory Standard preset. The current declaration derives from the **official DSH 0.2.0-rc.2 Web PTC composition**, adding Godot guidance, MCP, and Skill providers.
+It neither copies Minimal nor copies a user-directory Standard preset. The current declaration derives from the **official DSH 0.2.2-rc.5 Web PTC composition**, adding Godot guidance, MCP, and Skill providers.
 
 Files, shell, search, Skills, planning, goals, compaction, and verification remain available. Native PTC reduces direct model calls to `run_code`, focusing orchestration without removing engineering tools. DSH Standard, Minimal, and other built-in presets are unchanged.
 
@@ -116,7 +116,7 @@ Update the plugin with the same installation command targeting the new version, 
 
 [cordis.patch.yml](cordis.patch.yml) declares one Host plugin and one Godot Creator preset. Its Agent plugin mounts the Persona, Skills, and Godot AI MCP. The Host provides read-only preset status, integration diagnostics, and market management; the Client contributes settings and header UI. Mode identity uses current session projections, and tools use official `dsh-agent-tool-presentation` with `ptc`.
 
-The composition is pinned to the official rc.2 PTC file and checked by a contract test. Upstream updates do not silently rewrite user sessions; later DSH versions require fresh adaptation and verification. No DSH source changes, tool-name patches, or custom first-turn routing state machine are required.
+The composition is pinned to the official rc.5 PTC file and checked by a contract test. Upstream updates do not silently rewrite user sessions; later DSH versions require fresh adaptation and verification. No DSH source changes, tool-name patches, or custom first-turn routing state machine are required.
 
 </details>
 
@@ -126,9 +126,9 @@ The model directly sees `run_code` and the generated TypeScript SDK for Godot an
 
 ## Limitations and validation
 
-Checks cover TypeScript, unit/component contracts, tarball installation, real rc.2 Web mounting, 45 Godot bindings, 16 Skills, project Skill overrides, native PTC read-only execution, and Standard isolation; see [capability evidence](PLUGIN-CAPABILITY.md).
+Checks cover TypeScript, unit/component contracts, tarball installation, real rc.5 Web mounting, 47 Godot bindings, 16 Skills, project Skill overrides, native PTC read-only execution, and Standard isolation; see [capability evidence](PLUGIN-CAPABILITY.md).
 
-No Godot Addon was connected during this release's validation. Three complete games and real-model generation were not re-tested, so game-creation E2E is not claimed. Earlier game evidence belongs to historical versions. Godot AI `4.x` and DSH `0.2.1-alpha` are unverified. Resolve missing `uvx`, editor, or compatible backend diagnostics before proceeding.
+No Godot Addon was connected during this release's validation. Three complete games and real-model generation were not re-tested, so game-creation E2E is not claimed. Earlier game evidence belongs to historical versions. Godot AI versions other than `4.4.2` and DSH `0.2.1-alpha`/`0.2.3-alpha` are unverified. Resolve missing `uvx`, editor, or compatible backend diagnostics before proceeding.
 
 ## Development
 
@@ -139,7 +139,7 @@ pnpm test
 pnpm build
 ```
 
-Test the packed artifact before publishing the same tarball, then compare local, npm, and GitHub SHA-256 values. See the [0.7.0 plan](docs/10-plans/godot-creator-rc2/plan.json) and [CHANGELOG](CHANGELOG.md). License: MIT.
+Test the packed artifact before publishing the same tarball, then compare local, npm, and GitHub SHA-256 values. See [CHANGELOG](CHANGELOG.md), and the [historical 0.7.0 plan](docs/10-plans/godot-creator-rc2/plan.json). License: MIT.
 
 ### Dev Note
 

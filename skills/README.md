@@ -4,10 +4,10 @@ This directory is the on-demand knowledge layer for the `godot-creator` preset. 
 
 ## Source policy
 
-- Tool semantics and verification: `hi-godot/godot-ai` v3.1.5.
+- Tool semantics and verification: `hi-godot/godot-ai` v4.4.2.
 - Godot engine taxonomy: all 15 Godot domains from `gamedev-skills/awesome-gamedev-agent-skills` snapshot `9ca5296b219049c5b68494e1f3c274ead6d727b3`.
 - Secondary coverage review: `jame581/GodotPrompter` snapshot `eae755a1f3719076d52f50ab76f21993ebb9682b`.
-- Engine facts target Godot 4.7, while the wrapper's minimum supported Godot remains defined by `compatibility.json`.
+- Engine facts target Godot 4.7, which is also the wrapper's minimum supported Godot (see `compatibility.json`); Godot 4.5/4.6 editors are rejected by the Godot AI 4.4.2 v4 editor protocol.
 
 The content is deliberately rewritten around the `godot-ai` tool surface. Do not copy tool calls from an upstream skill that assumes another bridge, MCP server, CLI, hook, GUT, or gdUnit4.
 

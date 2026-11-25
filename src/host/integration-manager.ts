@@ -213,6 +213,9 @@ export async function readEditorSessions(
     if (result.isError === true) throw new Error('session_manage list returned an MCP error')
     return parseEditorSessions(result)
   } finally {
+    // `close()` only tears down the local stream; the backend keeps the MCP
+    // session until it is explicitly terminated, and Godot AI caps them.
+    await transport.terminateSession().catch(() => {})
     await client.close().catch(() => {})
   }
 }

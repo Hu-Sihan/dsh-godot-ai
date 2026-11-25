@@ -35,6 +35,19 @@ function backendDetail(snapshot: GodotIntegrationSnapshot, t: TranslateNS<'dsh-g
   }
 }
 
+function editorDetail(
+  snapshot: GodotIntegrationSnapshot | undefined,
+  view: ReturnType<typeof presentWorkspace>,
+  t: TranslateNS<'dsh-godot-ai'>,
+): string {
+  if (snapshot === undefined) return '—'
+  if (view.active !== undefined) return `${view.active.godotVersion} · Addon ${view.active.pluginVersion}`
+  // A failed session probe is not the same as "Godot is closed"; say which it is.
+  return snapshot.editor.kind === 'unknown'
+    ? t('integration.editorFailed', { reason: snapshot.editor.reason })
+    : t('workspace.notConnected')
+}
+
 function updateDetail(snapshot: GodotIntegrationSnapshot, t: TranslateNS<'dsh-godot-ai'>): string {
   switch (snapshot.update.kind) {
     case 'current': return t('update.current', { version: snapshot.update.latestVersion })
@@ -104,7 +117,7 @@ function GodotWorkspaceDrawer({ snapshot, busy, error, draftOccupied, onClose, o
             <dl className="dga-ws-facts">
               <div><dt>uvx</dt><dd>{snapshot === undefined ? '—' : snapshot.uvx.kind === 'available' ? snapshot.uvx.version : snapshot.uvx.kind === 'missing' ? t('workspace.notInstalled') : t('workspace.checkFailed')}</dd></div>
               <div><dt>Backend</dt><dd>{snapshot === undefined ? '—' : backendDetail(snapshot, t)}</dd></div>
-              <div><dt>Editor / Addon</dt><dd>{view.active === undefined ? t('workspace.notConnected') : `${view.active.godotVersion} · Addon ${view.active.pluginVersion}`}</dd></div>
+              <div><dt>Editor / Addon</dt><dd>{editorDetail(snapshot, view, t)}</dd></div>
             </dl>
           </section>
 

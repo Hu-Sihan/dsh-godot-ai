@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, describe, expect, it } from 'vitest'
-import { readEditorSessions } from '../src/host/integration-manager.js'
+import { readEditorSessions, releaseEditorSession } from '../src/host/integration-manager.js'
 
 const sessions = new Set<string>()
 const methods: string[] = []
@@ -95,6 +95,15 @@ describe('editor session probe transport', () => {
     expect(result[0]).toMatchObject({ name: '新建游戏项目', pluginVersion: '4.4.2', isActive: true })
     expect(methods.every(entry => entry.endsWith(`Bearer ${capability.http}`))).toBe(true)
     expect(methods.some(entry => entry.startsWith('DELETE'))).toBe(true)
+    expect(sessions.size).toBe(0)
+  })
+
+  it('frees a session even when the SDK transport cannot terminate it', async () => {
+    const port = await listen()
+    const capability = { http: 'B'.repeat(64) }
+    sessions.add('abandoned-session')
+    await releaseEditorSession(new URL(`http://127.0.0.1:${port}/mcp`), capability, 'abandoned-session')
+    expect(methods).toEqual([`DELETE Bearer ${capability.http}`])
     expect(sessions.size).toBe(0)
   })
 })

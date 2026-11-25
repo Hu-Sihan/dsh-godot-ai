@@ -190,11 +190,32 @@ export function parseEditorSessions(result: unknown): readonly GodotEditorSessio
   })
 }
 
+/**
+ * Drop a session with a plain DELETE. `terminateSession()` goes through the
+ * SDK transport, which is already aborted when a probe hits its timeout, so a
+ * timed-out probe would otherwise leave its session behind forever.
+ */
+export async function releaseEditorSession(
+  url: URL,
+  capability: BackendCapability | undefined,
+  sessionId: string,
+  fetchImpl: typeof globalThis.fetch = globalThis.fetch,
+): Promise<void> {
+  const headers: Record<string, string> = { 'mcp-session-id': sessionId }
+  if (capability !== undefined) headers.authorization = `Bearer ${capability.http}`
+  const response = await fetchImpl(url, {
+    method: 'DELETE',
+    headers,
+    signal: AbortSignal.timeout(LOCAL_TIMEOUT_MS),
+  })
+  await response.body?.cancel().catch(() => {})
+}
+
 export async function readEditorSessions(
   url: URL,
   capability?: BackendCapability,
 ): Promise<readonly GodotEditorSession[]> {
-  const client = new Client({ name: 'dsh-godot-ai-status', version: '0.6.0' }, { capabilities: {} })
+  const client = new Client({ name: 'dsh-godot-ai-status', version: '0.8.0' }, { capabilities: {} })
   const transport = new StreamableHTTPClientTransport(
     url,
     capability === undefined
@@ -213,10 +234,16 @@ export async function readEditorSessions(
     if (result.isError === true) throw new Error('session_manage list returned an MCP error')
     return parseEditorSessions(result)
   } finally {
-    // `close()` only tears down the local stream; the backend keeps the MCP
-    // session until it is explicitly terminated, and Godot AI caps them.
-    await transport.terminateSession().catch(() => {})
+    // `close()` only tears down the local stream; Godot AI keeps the session
+    // until it is explicitly terminated, and it caps them (HTTP 503).
+    const sessionId = transport.sessionId
+    let terminated = false
+    try {
+      await transport.terminateSession()
+      terminated = true
+    } catch { /* fall back to a raw DELETE below */ }
     await client.close().catch(() => {})
+    if (!terminated && sessionId !== undefined) await releaseEditorSession(url, capability, sessionId).catch(() => {})
   }
 }
 

@@ -54,6 +54,9 @@ export function presentWorkspace(t: TranslateNS<'dsh-godot-ai'>, snapshot?: Godo
   if (snapshot.backend.kind === 'incompatible') return {
     tone: 'warn', status: t('workspace.incompatible.status'), project: t('workspace.incompatible.project'), scene: '—', run: '—',
   }
+  if (snapshot.backend.kind === 'unauthorized') return {
+    tone: 'warn', status: t('workspace.unauthorized.status'), project: t('workspace.unauthorized.project'), scene: '—', run: '—',
+  }
   if (snapshot.backend.kind === 'error') return {
     tone: 'warn', status: t('workspace.failed.status'), project: t('workspace.failed.project'), scene: '—', run: '—',
   }

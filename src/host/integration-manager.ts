@@ -13,6 +13,7 @@ import type {
   GodotIntegrationSnapshot,
   UvxState,
 } from '../core/types.js'
+import { capabilityRecordPath, readBackendCapability, type BackendCapability } from './capability.js'
 
 const execFile = promisify(execFileCallback)
 const DEFAULT_CACHE_TTL_MS = 3_000
@@ -23,7 +24,8 @@ const UPDATE_TIMEOUT_MS = 3_000
 export interface IntegrationProbeDependencies {
   readonly probeUvx?: () => Promise<UvxState>
   readonly fetch?: typeof globalThis.fetch
-  readonly readEditorSessions?: (url: URL) => Promise<readonly GodotEditorSession[]>
+  readonly readCapability?: (port: number) => Promise<BackendCapability | undefined>
+  readonly readEditorSessions?: (url: URL, capability?: BackendCapability) => Promise<readonly GodotEditorSession[]>
   readonly now?: () => number
   readonly cacheTtlMs?: number
   readonly updateCacheTtlMs?: number
@@ -116,14 +118,25 @@ function looksLikeStopped(error: unknown): boolean {
 export async function probeBackend(
   manifest: CompatibilityManifest,
   fetchImpl: typeof globalThis.fetch = globalThis.fetch,
+  capability?: BackendCapability,
 ): Promise<BackendState> {
   const url = `http://127.0.0.1:${manifest.godotAi.httpPort}/godot-ai/status`
+  const headers: Record<string, string> = { accept: 'application/json' }
+  if (capability !== undefined) headers.authorization = `Bearer ${capability.http}`
   try {
     const response = await fetchImpl(url, {
       method: 'GET',
-      headers: { accept: 'application/json' },
+      headers,
       signal: AbortSignal.timeout(LOCAL_TIMEOUT_MS),
     })
+    if (response.status === 401 || response.status === 403) {
+      return {
+        kind: 'unauthorized',
+        reason: capability === undefined
+          ? `godot-ai ${manifest.godotAi.defaultVersion} requires a transport capability; no readable record at ${capabilityRecordPath(manifest.godotAi.httpPort)}`
+          : 'the published transport capability was rejected; restart the Godot preset session so the backend republishes its record',
+      }
+    }
     if (!response.ok) return { kind: 'foreign-listener', reason: `listener returned HTTP ${response.status}` }
     const details = backendDetails(await response.json())
     if (details === undefined) return { kind: 'foreign-listener', reason: 'listener did not return a valid godot-ai status document' }
@@ -177,9 +190,17 @@ export function parseEditorSessions(result: unknown): readonly GodotEditorSessio
   })
 }
 
-export async function readEditorSessions(url: URL): Promise<readonly GodotEditorSession[]> {
+export async function readEditorSessions(
+  url: URL,
+  capability?: BackendCapability,
+): Promise<readonly GodotEditorSession[]> {
   const client = new Client({ name: 'dsh-godot-ai-status', version: '0.6.0' }, { capabilities: {} })
-  const transport = new StreamableHTTPClientTransport(url)
+  const transport = new StreamableHTTPClientTransport(
+    url,
+    capability === undefined
+      ? undefined
+      : { requestInit: { headers: { authorization: `Bearer ${capability.http}` } } },
+  )
   try {
     // SDK 1.x exposes sessionId as optional without `| undefined`; widen only
     // that exactOptionalPropertyTypes mismatch, as DSH's MCP transport does.
@@ -221,7 +242,8 @@ export class GodotIntegrationManager {
   readonly #wrapperVersion: string
   readonly #probeUvx: () => Promise<UvxState>
   readonly #fetch: typeof globalThis.fetch
-  readonly #readEditorSessions: (url: URL) => Promise<readonly GodotEditorSession[]>
+  readonly #readCapability: (port: number) => Promise<BackendCapability | undefined>
+  readonly #readEditorSessions: (url: URL, capability?: BackendCapability) => Promise<readonly GodotEditorSession[]>
   readonly #now: () => number
   readonly #cacheTtlMs: number
   readonly #updateCacheTtlMs: number
@@ -235,6 +257,7 @@ export class GodotIntegrationManager {
     this.#wrapperVersion = wrapperVersion
     this.#probeUvx = deps.probeUvx ?? probeUvx
     this.#fetch = deps.fetch ?? globalThis.fetch
+    this.#readCapability = deps.readCapability ?? readBackendCapability
     this.#readEditorSessions = deps.readEditorSessions ?? readEditorSessions
     this.#now = deps.now ?? Date.now
     this.#cacheTtlMs = deps.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS
@@ -270,17 +293,21 @@ export class GodotIntegrationManager {
   }
 
   async #buildSnapshot(force: boolean): Promise<GodotIntegrationSnapshot> {
-    const [uvx, backend, update] = await Promise.all([
+    const [uvx, capability, update] = await Promise.all([
       this.#probeUvx(),
-      probeBackend(this.#manifest, this.#fetch),
+      this.#readCapability(this.#manifest.godotAi.httpPort),
       this.#update(force),
     ])
+    const backend = await probeBackend(this.#manifest, this.#fetch, capability)
     let editor: EditorState
     if (backend.kind !== 'ready') {
       editor = { kind: 'unavailable', reason: 'compatible backend is not running' }
     } else {
       try {
-        const sessions = await this.#readEditorSessions(new URL(`http://127.0.0.1:${this.#manifest.godotAi.httpPort}/mcp`))
+        const sessions = await this.#readEditorSessions(
+          new URL(`http://127.0.0.1:${this.#manifest.godotAi.httpPort}/mcp`),
+          capability,
+        )
         editor = sessions.length === 0 ? { kind: 'not-connected' } : { kind: 'connected', sessions }
       } catch (error) {
         editor = { kind: 'unknown', reason: reason(error, 'editor session probe failed') }

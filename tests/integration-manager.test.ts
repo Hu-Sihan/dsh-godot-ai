@@ -63,6 +63,33 @@ describe('backend status probe', () => {
     await expect(probeBackend(config, vi.fn(async () => json(status({ tool_catalog_hash: 'a'.repeat(64) })))))
       .resolves.toMatchObject({ kind: 'incompatible', reason: expect.stringContaining('catalog') })
   })
+
+  it('sends the published capability and reports a rejected one', async () => {
+    const config = await manifest()
+    const capability = { http: 'A'.repeat(64) }
+    const seen: Array<Record<string, string>> = []
+    const authorized = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      seen.push((init?.headers ?? {}) as Record<string, string>)
+      return json(status())
+    })
+    await expect(probeBackend(config, authorized as typeof fetch, capability))
+      .resolves.toMatchObject({ kind: 'ready' })
+    expect(seen[0]?.authorization).toBe(`Bearer ${capability.http}`)
+
+    const anonymous = vi.fn(async (_input: string | URL | Request, init?: RequestInit) => {
+      seen.push((init?.headers ?? {}) as Record<string, string>)
+      return json(status())
+    })
+    await probeBackend(config, anonymous as typeof fetch)
+    expect(seen[1]?.authorization).toBeUndefined()
+
+    await expect(probeBackend(config, vi.fn(async () => json({ error: { code: 'TRANSPORT_AUTH_REQUIRED' } }, 401))))
+      .resolves.toMatchObject({ kind: 'unauthorized', reason: expect.stringContaining('http-8000.json') })
+    await expect(probeBackend(config, vi.fn(async () => json({ error: { code: 'TRANSPORT_AUTH_REQUIRED' } }, 401)), capability))
+      .resolves.toMatchObject({ kind: 'unauthorized', reason: expect.stringContaining('restart the Godot preset session') })
+    await expect(probeBackend(config, vi.fn(async () => json({ error: { code: 'TRANSPORT_AUTH_REQUIRED' } }, 403)), capability))
+      .resolves.toMatchObject({ kind: 'unauthorized' })
+  })
 })
 
 describe('editor session parsing', () => {
@@ -141,8 +168,37 @@ describe('integration snapshot', () => {
     expect(pypiCalls).toBe(1)
   })
 
-  it('does not query editor sessions without a compatible backend', async () => {
+  it('forwards the published capability to backend and editor probes', async () => {
     const config = await manifest()
+    const capability = { http: 'A'.repeat(64) }
+    const readCapability = vi.fn(async () => capability)
+    const readSessions = vi.fn(async () => [])
+    const manager = new GodotIntegrationManager(config, '0.8.0', {
+      fetch: vi.fn(async () => json(status())),
+      probeUvx: async () => ({ kind: 'available', version: 'uvx 0.8.13' }),
+      readCapability,
+      readEditorSessions: readSessions,
+    })
+    const snapshot = await manager.snapshot()
+    expect(readCapability).toHaveBeenCalledWith(config.godotAi.httpPort)
+    expect(snapshot.backend.kind).toBe('ready')
+    expect(readSessions).toHaveBeenCalledWith(expect.any(URL), capability)
+  })
+
+  it('reports a backend that rejects every fingerprint as unauthorized', async () => {
+    const config = await manifest()
+    const manager = new GodotIntegrationManager(config, '0.8.0', {
+      fetch: vi.fn(async () => json({ error: { code: 'TRANSPORT_AUTH_REQUIRED' } }, 401)),
+      probeUvx: async () => ({ kind: 'available', version: 'uvx 0.8.13' }),
+      readCapability: async () => undefined,
+      readEditorSessions: vi.fn(),
+    })
+    const snapshot = await manager.snapshot()
+    expect(snapshot.backend.kind).toBe('unauthorized')
+    expect(snapshot.editor).toMatchObject({ kind: 'unavailable' })
+  })
+
+  it('does not query editor sessions without a compatible backend', async () => {    const config = await manifest()
     const readSessions = vi.fn()
     const manager = new GodotIntegrationManager(config, '0.3.0', {
       fetch: vi.fn(async (input: string | URL | Request) => String(input).includes('pypi')

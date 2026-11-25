@@ -33,6 +33,7 @@ export type BackendState =
   | { kind: 'ready'; details: BackendDetails }
   | { kind: 'incompatible'; reason: string; details?: BackendDetails }
   | { kind: 'foreign-listener'; reason: string }
+  | { kind: 'unauthorized'; reason: string }
   | { kind: 'error'; reason: string }
 
 export interface GodotEditorSession {

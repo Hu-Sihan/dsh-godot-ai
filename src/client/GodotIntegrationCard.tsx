@@ -21,6 +21,7 @@ function backendLabel(snapshot: GodotIntegrationSnapshot, t: TranslateNS<'dsh-go
     case 'stopped': return t('integration.backendStopped')
     case 'incompatible': return t('integration.backendIncompatible', { reason: snapshot.backend.reason })
     case 'foreign-listener': return t('integration.backendConflict', { reason: snapshot.backend.reason })
+    case 'unauthorized': return t('integration.backendUnauthorized', { reason: snapshot.backend.reason })
     case 'error': return t('integration.backendFailed', { reason: snapshot.backend.reason })
   }
 }

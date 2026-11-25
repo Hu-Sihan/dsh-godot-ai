@@ -29,6 +29,7 @@ function backendDetail(snapshot: GodotIntegrationSnapshot, t: TranslateNS<'dsh-g
     case 'ready': return t('backend.ready', { version: snapshot.backend.details.serverVersion, leases: snapshot.backend.details.activeLeaseCount })
     case 'stopped': return t('backend.stopped')
     case 'foreign-listener': return snapshot.backend.reason
+    case 'unauthorized': return snapshot.backend.reason
     case 'incompatible': return snapshot.backend.reason
     case 'error': return snapshot.backend.reason
   }
